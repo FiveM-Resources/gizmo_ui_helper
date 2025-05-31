@@ -1,3 +1,6 @@
+local gizmoEnabled = false
+
+
 local function DrawText3D(x, y, z, text)
   SetTextScale(0.4, 0.4)
   SetTextFont(0)
@@ -101,21 +104,30 @@ Citizen.CreateThread(function()
   while true do
     Citizen.Wait(0)
 
-    tickCounter = tickCounter + 1
-    if tickCounter % 15 == 0 then
-      UpdateClosestEntity()
-    end
-
-    local playerPed = PlayerPedId()
-    local playerCoords = GetEntityCoords(playerPed)
-    local heading = GetEntityHeading(playerPed)
-
-    if closestEntity and DoesEntityExist(closestEntity) then
-      local coords = GetEntityCoords(closestEntity)
-      local heading = GetEntityHeading(closestEntity)
-      DrawGizmo(coords, heading, 1.5)
+    if not gizmoEnabled then
+      Citizen.Wait(200)
     else
-      DrawGizmo(playerCoords, heading, 1.2)
+      tickCounter = tickCounter + 1
+      if tickCounter % 15 == 0 then
+        UpdateClosestEntity()
+      end
+
+      local playerPed = PlayerPedId()
+      local playerCoords = GetEntityCoords(playerPed)
+      local heading = GetEntityHeading(playerPed)
+
+      if closestEntity and DoesEntityExist(closestEntity) then
+        local coords = GetEntityCoords(closestEntity)
+        local heading = GetEntityHeading(closestEntity)
+        DrawGizmo(coords, heading, 1.5)
+      else
+        DrawGizmo(playerCoords, heading, 1.2)
+      end
     end
   end
 end)
+
+RegisterCommand("giz", function()
+  gizmoEnabled = not gizmoEnabled
+  print("Gizmo " .. (gizmoEnabled and "activé" or "désactivé"))
+end, false)
